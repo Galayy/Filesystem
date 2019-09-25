@@ -5,22 +5,48 @@
 using namespace std;
 
 void FileSystem::createFile(string filename) {
-	
 	int emptyBlock = findEmptyBlock();
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
 	} else {
-		HANDLE file = CreateFile(filename.c_str(), GENERIC_READ | GENERIC_WRITE, 0,	nullptr, CREATE_ALWAYS,
-			FILE_ATTRIBUTE_NORMAL, nullptr);
-
-		if (!validateFilename(filename) && file) {
+		if (!exists(filename)) {
 			setIntoMemory(emptyBlock, filename);
-			cout << "Success" << endl;
-			CloseHandle(file);
+			success();
 		} else {
 			cout << "File already exists" << endl;
 		}
 	}
+}
+
+void FileSystem::deleteFile(string filename) {
+	if (exists(filename)) {
+		files.erase(filename);
+		success();
+	} else {
+		cout << "File doesn't exist" << endl;
+	} 
+}
+
+void FileSystem::copyFile(string fileFrom, string fileTo) {
+	if (exists(fileFrom)) {
+		File file = files.find(fileFrom)->second;
+		files.insert(pair<string, File>(fileTo, file));
+		success();
+	} else {
+		cout << "File doesn't exist" << endl;
+	}
+}
+
+void FileSystem::moveFile(string fileFrom, string fileTo) {
+	if (exists(fileFrom)) {
+		File file = files.find(fileFrom)->second;
+		files.insert(pair<string, File>(fileTo, file));
+		deleteFile(fileFrom);
+	}
+	else {
+		cout << "File doesn't exist" << endl;
+	}
+
 }
 
 FileSystem::~FileSystem() {
@@ -28,16 +54,16 @@ FileSystem::~FileSystem() {
 }
 
 //PRIVATE
-bool FileSystem::validateFilename(string filename) {
-	/*bool exists = false;
-	for (int i = 0; i < files.size(); i++) {
-		if (files.[i] == filename) {
+bool FileSystem::exists(string filename) {
+	bool exists = false;
+	vector<string> filenames = getFileNames();
+	for (int i = 0; i < filenames.size(); i++) {
+		if (filename == filenames[i]) {
 			exists = true;
 			break;
 		}
 	}
-	return exists;*/
-	return false;
+	return exists;
 }
 
 int FileSystem::findEmptyBlock() {
@@ -55,4 +81,16 @@ void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	File file;
 	file.addToAddress(emptyBlock);
 	files.insert(pair<string, File>(filename, file));
+}
+
+void FileSystem::success() {
+	cout << SUCCESS_MESSAGE << endl;
+}
+
+vector<string> FileSystem::getFileNames() {
+	vector<string> filenames;
+	for (auto it = files.begin(); it != files.end(); ++it) {
+		filenames.push_back(it->first);
+    }
+	return filenames;
 }

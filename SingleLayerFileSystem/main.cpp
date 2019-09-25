@@ -11,15 +11,17 @@ using namespace std;
 
 FileSystem* fileSystem;
 bool shellState = true;
-const int MAX_FILE_SIZE = 16;
 const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
 int resolveCommand(string);
 
+void moveFile(vector<string>);
+void copyFile(vector<string>);
+void deleteFile(vector<string>);
 void createFile(vector<string>);
 void clearScreen(vector<string>);
 void closeFileSystem(vector<string>);
-
+//7 - load
 bool validateInput(string, vector<string>); 
 
 int main() {
@@ -28,9 +30,10 @@ int main() {
 	string input;
 	string word;
 
-	vector<string> commandNames = {"touch", "cls", "close"};//create enum for commands
+	vector<string> commandNames = {"create", "del", "copy", "move", "cls", "close"};//create enum for commands
 
 	while (shellState) {
+		cout << "> ";
 		getline(cin, input);
 		istringstream iss(input, istringstream::in);
 		vector<string> wordsVector;
@@ -40,6 +43,15 @@ int main() {
 		}
 		if (validateInput(wordsVector[0], commandNames)) {
 			switch (resolveCommand(wordsVector[0])) {
+			case 4:
+				moveFile(wordsVector);
+				break;
+			case 3:
+				copyFile(wordsVector);
+				break;
+			case 2:
+				deleteFile(wordsVector);
+				break;
 			case 1:
 				createFile(wordsVector);
 				break;
@@ -56,17 +68,39 @@ int main() {
 	}
 
 	return 0;
-	/*int a = 5;
-	cout << typeid(&a).name();*/
-	//char* memory = (char*) calloc(9, sizeof(char));
 }
 
 void createFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		if (wordsVector[1].size() < MAX_FILE_SIZE) {
-			fileSystem->createFile(wordsVector[1].c_str());
-		} else cout << "Filename is too long" << endl;
+		fileSystem->createFile(wordsVector[1].c_str());
 	} else {
+		cout << CMD_ERROR_MESSAGE << endl;
+	}
+}
+
+void copyFile(vector<string> wordsVector) {
+	if (wordsVector.size() == 3) {
+		fileSystem->copyFile(wordsVector[1].c_str(), wordsVector[2].c_str());
+	}
+	else {
+		cout << CMD_ERROR_MESSAGE << endl;
+	}
+}
+
+void moveFile(vector<string> wordsVector) {
+	if (wordsVector.size() == 3) {
+		fileSystem->moveFile(wordsVector[1].c_str(), wordsVector[2].c_str());
+	}
+	else {
+		cout << CMD_ERROR_MESSAGE << endl;
+	}
+}
+
+void deleteFile(vector<string> wordsVector) {
+	if (wordsVector.size() == 2) {
+		fileSystem->deleteFile(wordsVector[1].c_str());
+	}
+	else {
 		cout << CMD_ERROR_MESSAGE << endl;
 	}
 }
@@ -99,7 +133,10 @@ bool validateInput(string command, vector<string> commandNames) {
 }
 
 int resolveCommand(string command) {
-	if (command == "touch") return 1;
+	if (command == "move") return 4;
+	if (command == "copy") return 3;
+	if (command == "del") return 2;
+	if (command == "create") return 1;
 	if (command == "cls") return 0;
 	if (command == "close") return -1;
 	else return 0;
