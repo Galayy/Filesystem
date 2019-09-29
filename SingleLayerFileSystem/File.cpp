@@ -1,4 +1,7 @@
 #include "File.h"
+#include <iostream>
+
+using namespace std;
 
 void File::addToAddress(int blockIndex) {
 	for (int i = 0; i < FILE_SIZE; i++) {
@@ -23,4 +26,8 @@ void File::set_file_data_size(int data_size) {
 
 int File::get_file_data_size() {
 	return file_data_size;
+}
+
+int File::get_file_copacity() {
+	return FILE_SIZE;
 }

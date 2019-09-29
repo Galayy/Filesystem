@@ -14,4 +14,5 @@ public:
 	char* get_data();
 	void set_file_data_size(int);
 	int get_file_data_size();
+	int get_file_copacity();
 };

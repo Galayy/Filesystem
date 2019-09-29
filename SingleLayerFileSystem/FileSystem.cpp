@@ -5,31 +5,81 @@
 using namespace std;
 
 void FileSystem::createFile(string filename) {
-	
 	int emptyBlock = findEmptyBlock();
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
 	} else {
-		if (!validateFilename(filename)) {
+		if (!exists(filename)) {
 			setIntoMemory(emptyBlock, filename);
-			cout << "Success" << endl;
+			success();
 		} else {
 			cout << "File already exists" << endl;
 		}
 	}
 }
 // add lack of memory
-void FileSystem::write_in_file(string filename, char* info, int data_size) {
-	files.find(filename)->second.set_data(info);
-	files.find(filename)->second.set_file_data_size(data_size);
-	for (int i = 0; i < data_size; i++) {
-		files.find(filename)->second.addToAddress(findEmptyBlock());
+void FileSystem::write_in_file(string filename) {
+	if (exists(filename)) {
+		int file_copacity = files.find(filename)->second.get_file_copacity();
+		char* info = new char[file_copacity];
+		cin.getline(info, file_copacity);
+		cin.clear();
+		cin.ignore(10000, '\n');
+		int data_size = string(info).length();
+
+		if (data_size > file_copacity) {
+			data_size = file_copacity;
+		}
+		files.find(filename)->second.set_file_data_size(data_size);
+		files.find(filename)->second.set_data(info);
+		for (int i = 0; i < data_size; i++) {
+			files.find(filename)->second.addToAddress(findEmptyBlock());
+		}
+		cout << SUCCESS_MESSAGE << endl;
 	}
-	cout << "Success" << endl;
+	else {
+		cout << EXISTANCE_MESSAGE;
+	}
 }
 
 File FileSystem::read_from_file(string filename) {
-	return files.find(filename)->second;
+	if (exists(filename)) {
+		return files.find(filename)->second;
+	}
+	else {
+		cout << EXISTANCE_MESSAGE;
+	}
+}
+
+void FileSystem::deleteFile(string filename) {
+	if (exists(filename)) {
+		files.erase(filename);
+		success();
+	} else {
+		cout << EXISTANCE_MESSAGE << endl;
+	} 
+}
+
+void FileSystem::copyFile(string fileFrom, string fileTo) {
+	if (exists(fileFrom)) {
+		File file = files.find(fileFrom)->second;
+		files.insert(pair<string, File>(fileTo, file));
+		success();
+	} else {
+		cout << EXISTANCE_MESSAGE << endl;
+	}
+}
+
+void FileSystem::moveFile(string fileFrom, string fileTo) {
+	if (exists(fileFrom)) {
+		File file = files.find(fileFrom)->second;
+		files.insert(pair<string, File>(fileTo, file));
+		deleteFile(fileFrom);
+	}
+	else {
+		cout << EXISTANCE_MESSAGE << endl;
+	}
+
 }
 
 FileSystem::~FileSystem() {
@@ -37,16 +87,16 @@ FileSystem::~FileSystem() {
 }
 
 //PRIVATE
-bool FileSystem::validateFilename(string filename) {
-	/*bool exists = false;
-	for (int i = 0; i < files.size(); i++) {
-		if (files.[i] == filename) {
+bool FileSystem::exists(string filename) {
+	bool exists = false;
+	vector<string> filenames = getFileNames();
+	for (int i = 0; i < filenames.size(); i++) {
+		if (filename == filenames[i]) {
 			exists = true;
 			break;
 		}
 	}
-	return exists;*/
-	return false;
+	return exists;
 }
 
 int FileSystem::findEmptyBlock() {
@@ -64,4 +114,16 @@ void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	File file;
 	file.addToAddress(emptyBlock);
 	files.insert(pair<string, File>(filename, file));
+}
+
+void FileSystem::success() {
+	cout << SUCCESS_MESSAGE << endl;
+}
+
+vector<string> FileSystem::getFileNames() {
+	vector<string> filenames;
+	for (auto it = files.begin(); it != files.end(); ++it) {
+		filenames.push_back(it->first);
+    }
+	return filenames;
 }
