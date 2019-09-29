@@ -15,6 +15,8 @@ public:
 
 	void createFile(string filename);
 	~FileSystem();
+	File read_from_file(string);
+	void write_in_file(string, char*, int);
 
 private:
 	const int MEMORY_SIZE = 1024;

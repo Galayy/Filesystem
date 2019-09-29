@@ -10,17 +10,26 @@ void FileSystem::createFile(string filename) {
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
 	} else {
-		HANDLE file = CreateFile(filename.c_str(), GENERIC_READ | GENERIC_WRITE, 0,	nullptr, CREATE_ALWAYS,
-			FILE_ATTRIBUTE_NORMAL, nullptr);
-
-		if (!validateFilename(filename) && file) {
+		if (!validateFilename(filename)) {
 			setIntoMemory(emptyBlock, filename);
 			cout << "Success" << endl;
-			CloseHandle(file);
 		} else {
 			cout << "File already exists" << endl;
 		}
 	}
+}
+// add lack of memory
+void FileSystem::write_in_file(string filename, char* info, int data_size) {
+	files.find(filename)->second.set_data(info);
+	files.find(filename)->second.set_file_data_size(data_size);
+	for (int i = 0; i < data_size; i++) {
+		files.find(filename)->second.addToAddress(findEmptyBlock());
+	}
+	cout << "Success" << endl;
+}
+
+File FileSystem::read_from_file(string filename) {
+	return files.find(filename)->second;
 }
 
 FileSystem::~FileSystem() {
