@@ -4,16 +4,20 @@
 #include <map>
 #include <functional>
 #include <algorithm>
+#include "Command.h"
 #include "FileSystem.h"
+#include "UnitTests.h"
 #include <stdlib.h>
 
 using namespace std;
 
+Command* command;
 FileSystem* fileSystem;
+UnitTests* unitTests;
 bool shellState = true;
-const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
-int resolveCommand(string);
+const int MEMORY_SIZE = 1024;
+const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
 void moveFile(vector<string>);
 void copyFile(vector<string>);
@@ -21,52 +25,41 @@ void deleteFile(vector<string>);
 void createFile(vector<string>);
 void clearScreen(vector<string>);
 void closeFileSystem(vector<string>);
-//7 - load
-bool validateInput(string, vector<string>); 
 
 int main() {
-	fileSystem = new FileSystem();
+	unitTests = new UnitTests();
+	command = new Command();
+	fileSystem = new FileSystem(MEMORY_SIZE);
 
-	string input;
-	string word;
-
-	vector<string> commandNames = {"create", "del", "copy", "move", "cls", "close"};//create enum for commands
+	unitTests->runTests();
 
 	while (shellState) {
 		cout << "> ";
-		getline(cin, input);
-		istringstream iss(input, istringstream::in);
-		vector<string> wordsVector;
 
-		while (iss >> word) {
-			wordsVector.push_back(word);
-		}
-		if (validateInput(wordsVector[0], commandNames)) {
-			switch (resolveCommand(wordsVector[0])) {
-			case 4:
-				moveFile(wordsVector);
-				break;
-			case 3:
-				copyFile(wordsVector);
-				break;
-			case 2:
-				deleteFile(wordsVector);
-				break;
-			case 1:
-				createFile(wordsVector);
-				break;
-			case 0:
-				clearScreen(wordsVector);
-				break;
-			case -1:
-				closeFileSystem(wordsVector);
-				break;
-			}
-		} else {
-			cout << CMD_ERROR_MESSAGE << endl;
+		vector<string> wordsVector = command->getInputFromCommandLine();
+		int com = command->processInput(wordsVector);
+
+		switch (com) {
+		case 4:
+			moveFile(wordsVector);
+			break;
+		case 3:
+			copyFile(wordsVector);
+			break;
+		case 2:
+			deleteFile(wordsVector);
+			break;
+		case 1:
+			createFile(wordsVector);
+			break;
+		case 0:
+			clearScreen(wordsVector);
+			break;
+		case -1:
+			closeFileSystem(wordsVector);
+			break;
 		}
 	}
-
 	return 0;
 }
 
@@ -119,25 +112,4 @@ void closeFileSystem(vector<string> wordsVector) {
 	} else {
 		cout << CMD_ERROR_MESSAGE << endl;
 	}
-}
-
-bool validateInput(string command, vector<string> commandNames) {
-	bool commandExists = false;
-	for (int i = 0; i < commandNames.size(); i++) {
-		if (commandNames[i] == command) {
-			commandExists = true;
-			break;
-		}
-	}
-	return commandExists;
-}
-
-int resolveCommand(string command) {
-	if (command == "move") return 4;
-	if (command == "copy") return 3;
-	if (command == "del") return 2;
-	if (command == "create") return 1;
-	if (command == "cls") return 0;
-	if (command == "close") return -1;
-	else return 0;
 }

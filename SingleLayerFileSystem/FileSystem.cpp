@@ -1,50 +1,60 @@
 #include <iostream>
+#include <map>
 #include <windows.h>
 #include "FileSystem.h"
 
 using namespace std;
 
-void FileSystem::createFile(string filename) {
+FileSystem::FileSystem(int size) {
+	memory = (char*)calloc(size, sizeof(char));
+}
+
+int FileSystem::createFile(string filename) {
 	int emptyBlock = findEmptyBlock();
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
+		return Errors::LACK_OF_MEMORY;
 	} else {
 		if (!exists(filename)) {
 			setIntoMemory(emptyBlock, filename);
-			success();
+			return success();
 		} else {
 			cout << "File already exists" << endl;
+			return Errors::FILE_ALREADY_EXISTS;
 		}
 	}
 }
 
-void FileSystem::deleteFile(string filename) {
+int FileSystem::deleteFile(string filename) {
 	if (exists(filename)) {
 		files.erase(filename);
-		success();
+		return success();
 	} else {
 		cout << "File doesn't exist" << endl;
+		return Errors::FILE_NOT_FOUND;
 	} 
 }
 
-void FileSystem::copyFile(string fileFrom, string fileTo) {
+int FileSystem::copyFile(string fileFrom, string fileTo) {
 	if (exists(fileFrom)) {
 		File file = files.find(fileFrom)->second;
 		files.insert(pair<string, File>(fileTo, file));
-		success();
+		return success();
 	} else {
 		cout << "File doesn't exist" << endl;
+		return Errors::FILE_NOT_FOUND;
 	}
 }
 
-void FileSystem::moveFile(string fileFrom, string fileTo) {
+int FileSystem::moveFile(string fileFrom, string fileTo) {
 	if (exists(fileFrom)) {
 		File file = files.find(fileFrom)->second;
 		files.insert(pair<string, File>(fileTo, file));
-		deleteFile(fileFrom);
+		return deleteFile(fileFrom);
 	}
 	else {
 		cout << "File doesn't exist" << endl;
+		return Errors::FILE_NOT_FOUND;
 	}
 
 }
@@ -83,8 +93,9 @@ void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	files.insert(pair<string, File>(filename, file));
 }
 
-void FileSystem::success() {
+int FileSystem::success() {
 	cout << SUCCESS_MESSAGE << endl;
+	return Errors::SUCCESS;
 }
 
 vector<string> FileSystem::getFileNames() {
