@@ -1,83 +1,110 @@
 #include <iostream>
+#include <map>
 #include <windows.h>
 #include "FileSystem.h"
 
 using namespace std;
 
-void FileSystem::createFile(string filename) {
+FileSystem::FileSystem(int size) {
+	memory = (char*)calloc(size, sizeof(char));
+}
+
+File FileSystem::get_file(string filename) {
+	return files.find(filename)->second;
+}
+
+int FileSystem::createFile(string filename) {
 	int emptyBlock = findEmptyBlock();
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
+		return Errors::LACK_OF_MEMORY;
 	} else {
 		if (!exists(filename)) {
 			setIntoMemory(emptyBlock, filename);
-			success();
+			return success();
 		} else {
 			cout << "File already exists" << endl;
+			return Errors::FILE_ALREADY_EXISTS;
 		}
 	}
 }
-// add lack of memory
-void FileSystem::write_in_file(string filename) {
+// Как протестировать???
+// Чтобы нормально протестировать нужно тогда передавать три аргумента: filename, char* info, int data_size,
+// тогда нужно передавать их из main, а там нужно будет получить доступ к записываемому файлу, то есть нужна будет
+// функция типа File FileSystem::getFile(), но её быть не должно (или может быть?), только функции работы с файлами 
+int FileSystem::write_in_file(string filename) {
 	if (exists(filename)) {
 		int file_copacity = files.find(filename)->second.get_file_copacity();
 		char* info = new char[file_copacity];
-		cin.getline(info, file_copacity);
+		cin.read(info, file_copacity);
 		cin.clear();
 		cin.ignore(10000, '\n');
 		int data_size = string(info).length();
 
 		if (data_size > file_copacity) {
-			data_size = file_copacity;
+			cout << "Lack of memory" << endl;
+			return Errors::LACK_OF_MEMORY;
 		}
-		files.find(filename)->second.set_file_data_size(data_size);
-		files.find(filename)->second.set_data(info);
-		for (int i = 0; i < data_size; i++) {
-			files.find(filename)->second.addToAddress(findEmptyBlock());
+		else {
+			files.find(filename)->second.set_file_data_size(data_size);
+			files.find(filename)->second.set_data(info);
+			for (int i = 0; i < data_size; i++) {
+				files.find(filename)->second.addToAddress(findEmptyBlock());
+			}
+			success();
 		}
-		cout << SUCCESS_MESSAGE << endl;
 	}
 	else {
-		cout << EXISTANCE_MESSAGE;
+		return Errors::FILE_NOT_FOUND;
 	}
 }
 
-File FileSystem::read_from_file(string filename) {
+int FileSystem::read_from_file(string filename) {
 	if (exists(filename)) {
-		return files.find(filename)->second;
+		File file = files.find(filename)->second;
+		char* info = file.get_data();
+		for (int i = 0; i < file.get_file_data_size; i++) {
+			cout << info[i];
+		}
+		cout << endl;
+		success();
 	}
 	else {
 		cout << EXISTANCE_MESSAGE;
+		return Errors::FILE_NOT_FOUND;
 	}
 }
 
-void FileSystem::deleteFile(string filename) {
+int FileSystem::deleteFile(string filename) {
 	if (exists(filename)) {
 		files.erase(filename);
-		success();
+		return success();
 	} else {
 		cout << EXISTANCE_MESSAGE << endl;
+		return Errors::FILE_NOT_FOUND;
 	} 
 }
 
-void FileSystem::copyFile(string fileFrom, string fileTo) {
+int FileSystem::copyFile(string fileFrom, string fileTo) {
 	if (exists(fileFrom)) {
 		File file = files.find(fileFrom)->second;
 		files.insert(pair<string, File>(fileTo, file));
-		success();
+		return success();
 	} else {
 		cout << EXISTANCE_MESSAGE << endl;
+		return Errors::FILE_NOT_FOUND;
 	}
 }
 
-void FileSystem::moveFile(string fileFrom, string fileTo) {
+int FileSystem::moveFile(string fileFrom, string fileTo) {
 	if (exists(fileFrom)) {
 		File file = files.find(fileFrom)->second;
 		files.insert(pair<string, File>(fileTo, file));
-		deleteFile(fileFrom);
+		return deleteFile(fileFrom);
 	}
 	else {
 		cout << EXISTANCE_MESSAGE << endl;
+		return Errors::FILE_NOT_FOUND;
 	}
 
 }
@@ -116,8 +143,9 @@ void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	files.insert(pair<string, File>(filename, file));
 }
 
-void FileSystem::success() {
+int FileSystem::success() {
 	cout << SUCCESS_MESSAGE << endl;
+	return Errors::SUCCESS;
 }
 
 vector<string> FileSystem::getFileNames() {

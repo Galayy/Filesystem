@@ -4,35 +4,38 @@
 #include <vector>
 #include <string>
 #include "File.h"
+#include "Errors.h"
 
-//add constructor to initialize params
 using namespace std;
 
 class FileSystem {
 public:
-	char* memory = (char*)calloc(MEMORY_SIZE, sizeof(char));
+	FileSystem(int memorySize);
+
+	char* memory;
 	map<string, File> files;
 
-	void moveFile(string fileFrom, string fileTo);
-	void copyFile(string fileFrom, string fileTo);
-	void createFile(string filename);
-	void deleteFile(string filename);
+	int moveFile(string fileFrom, string fileTo);
+	int copyFile(string fileFrom, string fileTo);
+	int createFile(string filename);
+	int deleteFile(string filename);
 	~FileSystem();
-	File read_from_file(string);
-	void write_in_file(string);
+	int read_from_file(string filename);
+	int write_in_file(string filename);
+	//int write_in_file(string filename, char*, int);
+	File get_file(string filename);
 
 private:
+	const int MEMORY_SIZE = 1024;
 	const string SUCCESS_MESSAGE = "Success";
 	const string EXISTANCE_MESSAGE = "File doesn't exist";
-	const int MEMORY_SIZE = 1024;
 
 	bool exists(string filename);
 
+	int success();
 	int findEmptyBlock();
 
 	vector<string> getFileNames();
 
 	void setIntoMemory(int emptyBlock, string filename);
-	void success();
-
 };

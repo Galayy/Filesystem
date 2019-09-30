@@ -4,16 +4,20 @@
 #include <map>
 #include <functional>
 #include <algorithm>
+#include "Command.h"
 #include "FileSystem.h"
+#include "UnitTests.h"
 #include <stdlib.h>
 
 using namespace std;
 
+Command* command;
 FileSystem* fileSystem;
+UnitTests* unitTests;
 bool shellState = true;
-const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
-int resolveCommand(string);
+const int MEMORY_SIZE = 1024;
+const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
 void moveFile(vector<string>);
 void copyFile(vector<string>);
@@ -26,60 +30,49 @@ void read_from_file(vector<string>);
 //7 - load
 bool validateInput(string, vector<string>); 
 
+
 int main() {
-	fileSystem = new FileSystem();
+	unitTests = new UnitTests();
+	command = new Command();
+	fileSystem = new FileSystem(MEMORY_SIZE);
 
-	string input;
-	string word;
+	vector<string> commandNames = {"create", "delete", "copy", "move", "cls", "close", "write", "read" };//create enum for commands
 
-	vector<string> commandNames = {"create", "del", "copy", "move", "cls", "close", "write", "read" };//create enum for commands
-
+	unitTests->runTests();
 
 	while (shellState) {
 		cout << "> ";
-		getline(cin, input);
-		istringstream iss(input, istringstream::in);
-		vector<string> wordsVector;
+		vector<string> wordsVector = command->getInputFromCommandLine();
+		int com = command->processInput(wordsVector);
 
-		while (iss >> word) {
-			wordsVector.push_back(word);
-		}
-		if (validateInput(wordsVector[0], commandNames)) {
-			switch (resolveCommand(wordsVector[0])) {
-			case 4:
-				moveFile(wordsVector);
-				break;
-			case 3:
-				copyFile(wordsVector);
-				break;
-			case 2:
-				deleteFile(wordsVector);
-				break;
-			case 1:
-				createFile(wordsVector);
-				break;
-			case 0:
-				clearScreen(wordsVector);
-				break;
-			case -1:
-				closeFileSystem(wordsVector);
-				break;
-			case 5:
-				// To think about 300 bytes???
-				// To think about another way to read data because getline returns String???
-				/*cin.getline(data,300);
-				data_size = string(data).length();*/
-				write_in_file(wordsVector);
-				break;
-			case 6: 
-				read_from_file(wordsVector);
-				break;
-			}
-		} else {
-			cout << CMD_ERROR_MESSAGE << endl;
+		switch (com) {
+		case 4:
+			moveFile(wordsVector);
+			break;
+		case 3:
+			copyFile(wordsVector);
+			break;
+		case 2:
+			deleteFile(wordsVector);
+			break;
+		case 1:
+			createFile(wordsVector);
+			break;
+		case 0:
+			clearScreen(wordsVector);
+			break;
+		case -1:
+			closeFileSystem(wordsVector);
+			break;
+		case 5:
+			// To think about another way to read data because getline returns String???
+			write_in_file(wordsVector);
+			break;
+		case 6:
+			read_from_file(wordsVector);
+			break;
 		}
 	}
-
 	return 0;
 }
 
@@ -112,12 +105,7 @@ void copyFile(vector<string> wordsVector) {
 
 void read_from_file(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		File file = fileSystem->read_from_file(wordsVector[1]);
-		char* info = file.get_data();
-		for (int i = 0; i < file.get_file_data_size(); i++) {
-			cout << info[i];
-		}
-		cout << endl;
+		fileSystem->read_from_file(wordsVector[1]);
 	}
 	else { 
 		cout << CMD_ERROR_MESSAGE << endl; 
@@ -158,25 +146,3 @@ void closeFileSystem(vector<string> wordsVector) {
 	}
 }
 
-bool validateInput(string command, vector<string> commandNames) {
-	bool commandExists = false;
-	for (int i = 0; i < commandNames.size(); i++) {
-		if (commandNames[i] == command) {
-			commandExists = true;
-			break;
-		}
-	}
-	return commandExists;
-}
-
-int resolveCommand(string command) {
-	if (command == "move") return 4;
-	if (command == "copy") return 3;
-	if (command == "del") return 2;
-	if (command == "create") return 1;
-	if (command == "cls") return 0;
-	if (command == "close") return -1;
-	if (command == "write") return 5;
-	if (command == "read") return 6;
-	else return 0;
-}
