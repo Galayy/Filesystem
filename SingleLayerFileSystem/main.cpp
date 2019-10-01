@@ -17,6 +17,7 @@ UnitTests* unitTests;
 bool shellState = true;
 
 const int MEMORY_SIZE = 1024;
+const int MAX_FILE_SIZE = 64; // ??????????
 const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
 
 void moveFile(vector<string>);
@@ -46,6 +47,12 @@ int main() {
 		int com = command->processInput(wordsVector);
 
 		switch (com) {
+		case 6:
+			read_from_file(wordsVector);
+			break;
+		case 5:
+			write_in_file(wordsVector);
+			break;
 		case 4:
 			moveFile(wordsVector);
 			break;
@@ -64,13 +71,6 @@ int main() {
 		case -1:
 			closeFileSystem(wordsVector);
 			break;
-		case 5:
-			// To think about another way to read data because getline returns String???
-			write_in_file(wordsVector);
-			break;
-		case 6:
-			read_from_file(wordsVector);
-			break;
 		}
 	}
 	return 0;
@@ -86,12 +86,26 @@ void createFile(vector<string> wordsVector) {
 
 void write_in_file(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		fileSystem->write_in_file(wordsVector[1].c_str());
-		}
+		char* info = new char[MAX_FILE_SIZE];
+		cin.get(info, MAX_FILE_SIZE);
+		cin.clear();
+		cin.ignore(10000, '\n');
+		int data_size = string(info).length();
+		fileSystem->write_in_file(wordsVector[1].c_str(),info,data_size);
+	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
 	}
 }
+
+//void write_in_file(vector<string> wordsVector) {
+//	if (wordsVector.size() == 2) {
+//		fileSystem->write_in_file(wordsVector[1].c_str());
+//		}
+//	else {
+//		cout << CMD_ERROR_MESSAGE << endl;
+//	}
+//}
 
 void copyFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 3) {

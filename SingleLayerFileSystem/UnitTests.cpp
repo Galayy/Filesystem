@@ -31,14 +31,14 @@ void UnitTests::runTests() {
 	moveFileWhenNotFound();
 	clear();
 
-	writeInFile_happyPath();
+	/*writeInFile_happyPath();
 	writeInFileWhenLackOfMemory();
 	writeInFileNotFound();
-	clear();
+	clear();*/
 
-	readFromFile_happyPath();
+	/*readFromFile_happyPath();
 	readFromFileNotFound();
-	clear();
+	clear();*/
 
 	performWithWrongCommand();
 	performWithWrongArguments();
@@ -129,24 +129,28 @@ void UnitTests::moveFileWhenNotFound() {
 
 
 //---------------------WRITE_BLOCK-------------------
+
 void UnitTests::writeInFile_happyPath() {
 	init(MEMORY_SIZE);
-	testFileSystem->write_in_file(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	testFileSystem->createFile(FILE_NAME);
+	char RIGHT_DATA[25] = "this is the wright data";
+	int output = testFileSystem->write_in_file(FILE_NAME,&RIGHT_DATA[0], 25);
 	assert(output == Errors::SUCCESS);
 }
 
 void UnitTests::writeInFileNotFound() {
 	init(MEMORY_SIZE);
-	testFileSystem->write_in_file(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	//testFileSystem->write_in_file(FILE_NAME);
+	char RIGHT_DATA[25] = "this is the wright data";
+	int output = testFileSystem->write_in_file(FILE_NAME, &RIGHT_DATA[0], 25);
 	assert(output == Errors::FILE_NOT_FOUND);
 }
 // I have some doubts about Memory_size because it's different lack of memory
 void UnitTests::writeInFileWhenLackOfMemory() {
 	init(MEMORY_SIZE);//???
 	testFileSystem->createFile(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	char WRONG_DATA[75] = "hhssfjshfjshf skhfkjdhfsjhfk sdjfhsjhfshfdks skfhdjfhdsfh sdjjfhsdjkfhskfh";
+	int output = testFileSystem->write_in_file(FILE_NAME, &WRONG_DATA[0], 75);
 	assert(output == Errors::LACK_OF_MEMORY);
 }
 //---------------------WRITE_BLOCK-------------------

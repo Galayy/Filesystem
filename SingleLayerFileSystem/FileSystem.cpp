@@ -9,9 +9,6 @@ FileSystem::FileSystem(int size) {
 	memory = (char*)calloc(size, sizeof(char));
 }
 
-File FileSystem::get_file(string filename) {
-	return files.find(filename)->second;
-}
 
 int FileSystem::createFile(string filename) {
 	int emptyBlock = findEmptyBlock();
@@ -28,20 +25,10 @@ int FileSystem::createFile(string filename) {
 		}
 	}
 }
-// Как протестировать???
-// Чтобы нормально протестировать нужно тогда передавать три аргумента: filename, char* info, int data_size,
-// тогда нужно передавать их из main, а там нужно будет получить доступ к записываемому файлу, то есть нужна будет
-// функция типа File FileSystem::getFile(), но её быть не должно (или может быть?), только функции работы с файлами 
-int FileSystem::write_in_file(string filename) {
-	if (exists(filename)) {
-		int file_copacity = files.find(filename)->second.get_file_copacity();
-		char* info = new char[file_copacity];
-		cin.read(info, file_copacity);
-		cin.clear();
-		cin.ignore(10000, '\n');
-		int data_size = string(info).length();
 
-		if (data_size > file_copacity) {
+int FileSystem::write_in_file(string filename, char* info, int data_size) {
+	if (exists(filename)) {
+		if (data_size > files.find(filename)->second.get_file_copacity()) {
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
@@ -63,7 +50,7 @@ int FileSystem::read_from_file(string filename) {
 	if (exists(filename)) {
 		File file = files.find(filename)->second;
 		char* info = file.get_data();
-		for (int i = 0; i < file.get_file_data_size; i++) {
+		for (int i = 0; i < file.get_file_data_size(); i++) {
 			cout << info[i];
 		}
 		cout << endl;

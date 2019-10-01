@@ -11,8 +11,7 @@ private:
 	const string FILE_NAME = "test_file_name";
 	const string ANOTHER_FILE_NAME = "another_test_file_name";
 	const string WRONG_COMMAND = "test_file_name";
-	//const char* RIGHT_DATA = "this is the wright data"
-
+	
 
 	Command* command;
 	FileSystem* testFileSystem;

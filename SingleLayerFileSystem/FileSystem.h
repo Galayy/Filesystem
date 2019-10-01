@@ -21,9 +21,7 @@ public:
 	int deleteFile(string filename);
 	~FileSystem();
 	int read_from_file(string filename);
-	int write_in_file(string filename);
-	//int write_in_file(string filename, char*, int);
-	File get_file(string filename);
+	int write_in_file(string filename, char*, int);
 
 private:
 	const int MEMORY_SIZE = 1024;
