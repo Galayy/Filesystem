@@ -31,3 +31,11 @@ int File::get_file_data_size() {
 int File::get_file_copacity() {
 	return FILE_SIZE;
 }
+
+char* File::get_address() {
+	char* address_to_return = new char[file_data_size];
+	for (int i = 0; i < file_data_size; i++) {
+		address_to_return[i] = static_cast<char>(address[i]);
+	}
+	return address_to_return;
+}

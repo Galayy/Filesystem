@@ -28,16 +28,15 @@ void clearScreen(vector<string>);
 void closeFileSystem(vector<string>);
 void write_in_file(vector<string>);
 void read_from_file(vector<string>);
-//7 - load
-bool validateInput(string, vector<string>); 
+bool validateInput(string, vector<string>);
+void create_dump(vector<string>);
+void load_dump(vector<string>);
 
 
 int main() {
 	unitTests = new UnitTests();
 	command = new Command();
 	fileSystem = new FileSystem(MEMORY_SIZE);
-
-	vector<string> commandNames = {"create", "delete", "copy", "move", "cls", "close", "write", "read" };//create enum for commands
 
 	unitTests->runTests();
 
@@ -47,6 +46,12 @@ int main() {
 		int com = command->processInput(wordsVector);
 
 		switch (com) {
+		case 8:
+			load_dump(wordsVector);
+			break;
+		case 7:
+			create_dump(wordsVector);
+			break;
 		case 6:
 			read_from_file(wordsVector);
 			break;
@@ -89,7 +94,8 @@ void write_in_file(vector<string> wordsVector) {
 		char* info = new char[MAX_FILE_SIZE];
 		cin.get(info, MAX_FILE_SIZE);
 		cin.clear();
-		cin.ignore(10000, '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		//int data_size = string(info).length()+1;
 		int data_size = string(info).length();
 		fileSystem->write_in_file(wordsVector[1].c_str(),info,data_size);
 	}
@@ -97,15 +103,6 @@ void write_in_file(vector<string> wordsVector) {
 		cout << CMD_ERROR_MESSAGE << endl;
 	}
 }
-
-//void write_in_file(vector<string> wordsVector) {
-//	if (wordsVector.size() == 2) {
-//		fileSystem->write_in_file(wordsVector[1].c_str());
-//		}
-//	else {
-//		cout << CMD_ERROR_MESSAGE << endl;
-//	}
-//}
 
 void copyFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 3) {
@@ -160,3 +157,20 @@ void closeFileSystem(vector<string> wordsVector) {
 	}
 }
 
+void create_dump(vector<string> wordsVector) {
+	if (wordsVector.size() == 1) {
+		fileSystem->create_dump();
+	}
+	else {
+		cout << CMD_ERROR_MESSAGE << endl;
+	}
+}
+
+void load_dump(vector<string> wordsVector) {
+	if (wordsVector.size() == 1) {
+		fileSystem->load_dump();
+	}
+	else {
+		cout << CMD_ERROR_MESSAGE << endl;
+	}
+}

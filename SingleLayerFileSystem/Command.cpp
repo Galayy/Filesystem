@@ -16,10 +16,26 @@ vector<string> Command::getInputFromCommandLine() {
 }
 
 int Command::processInput(vector<string> wordsVector) {
-	commandNames = { "create", "del", "copy", "move", "cls", "close", "write", "read"};
+	commandNames = { "create", "del", "copy", "move", "cls", "close", "write", "read", "dump", "load"};
 
 	if (validateInput(wordsVector[0], commandNames)) {
 		switch (resolveCommand(wordsVector[0])) {
+		case 8:
+			if (wordsVector.size() == 1) {
+				return 8;
+			}
+			else {
+				return Errors::WRONG_INPUT;
+			}
+			break;
+		case 7:
+			if (wordsVector.size() == 1) {
+				return 7;
+			}
+			else {
+				return Errors::WRONG_INPUT;
+			}
+			break;
 		case 6:
 			if (wordsVector.size() == 2) {
 				return 6;
@@ -106,5 +122,7 @@ int Command::resolveCommand(string command) {
 	if (command == "close") return -1;
 	if (command == "write") return 5;
 	if (command == "read") return 6;
+	if (command == "dump") return 7;
+	if (command == "load") return 8;
 	else return 0;
 }

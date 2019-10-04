@@ -2,6 +2,7 @@
 #include <map>
 #include <windows.h>
 #include "FileSystem.h"
+#include "xmlout.h"
 
 using namespace std;
 
@@ -28,17 +29,27 @@ int FileSystem::createFile(string filename) {
 
 int FileSystem::write_in_file(string filename, char* info, int data_size) {
 	if (exists(filename)) {
-		if (data_size > files.find(filename)->second.get_file_copacity()) {
+		int copacity = files.find(filename)->second.get_file_copacity();
+		int current_data_size = files.find(filename)->second.get_file_data_size();
+		int new_data_size = current_data_size + data_size;
+		if (data_size > copacity|| copacity < new_data_size) {
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
+
+		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			files.find(filename)->second.set_file_data_size(data_size);
-			files.find(filename)->second.set_data(info);
+			//info[data_size-1] = '\0';
+			//files.find(filename)->second.set_data(info);
+			
+			for (int i = current_data_size; i < new_data_size; i++) {
+				files.find(filename)->second.get_data()[i] = info[i - current_data_size];
+			}
+			files.find(filename)->second.set_file_data_size(new_data_size);
 			for (int i = 0; i < data_size; i++) {
 				files.find(filename)->second.addToAddress(findEmptyBlock());
 			}
-			success();
+			return success();
 		}
 	}
 	else {
@@ -49,12 +60,9 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 int FileSystem::read_from_file(string filename) {
 	if (exists(filename)) {
 		File file = files.find(filename)->second;
-		char* info = file.get_data();
-		for (int i = 0; i < file.get_file_data_size(); i++) {
-			cout << info[i];
-		}
+		cout.write(file.get_data(), file.get_file_data_size());
 		cout << endl;
-		success();
+		return success();
 	}
 	else {
 		cout << EXISTANCE_MESSAGE;
@@ -118,6 +126,7 @@ int FileSystem::findEmptyBlock() {
 	for (int blockIndex = 0; blockIndex < MEMORY_SIZE; blockIndex++) {
 		if (memory[blockIndex] == '\0') {
 			emptyBlockIndex = blockIndex;
+			memory[blockIndex] = '1';
 			break;
 		}
 	}
@@ -126,7 +135,7 @@ int FileSystem::findEmptyBlock() {
 
 void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	File file;
-	file.addToAddress(emptyBlock);
+	//file.addToAddress(emptyBlock);
 	files.insert(pair<string, File>(filename, file));
 }
 
@@ -141,4 +150,34 @@ vector<string> FileSystem::getFileNames() {
 		filenames.push_back(it->first);
     }
 	return filenames;
+}
+
+// creates dump file, rewrites if it already exists
+int FileSystem::create_dump() {
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+
+	TiXmlElement* root = new TiXmlElement("FileSystem");
+	doc.LinkEndChild(root);
+	TiXmlElement* file;
+	file = new TiXmlElement("file");
+
+	for (auto& elem:files) {
+		string str = string(elem.second.get_data()).substr(0,elem.second.get_file_data_size());
+		file->LinkEndChild(new TiXmlText(str.c_str()));
+		root->LinkEndChild(file);
+		file->SetAttribute("name", elem.first.c_str());
+		file->SetAttribute("address", elem.second.get_address());
+	}
+	doc.SaveFile("dump.xml");
+	return success();
+}
+
+// uses xmlout.h - not mine code
+int FileSystem::load_dump() {
+	TiXmlDocument doc("dump.xml");
+	doc.LoadFile();
+	dump_to_stdout("dump.xml");
+	return success();
 }

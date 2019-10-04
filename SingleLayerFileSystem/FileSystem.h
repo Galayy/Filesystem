@@ -5,6 +5,7 @@
 #include <string>
 #include "File.h"
 #include "Errors.h"
+#include "tinyxml.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ public:
 	~FileSystem();
 	int read_from_file(string filename);
 	int write_in_file(string filename, char*, int);
+	int create_dump();
+	int load_dump();
 
 private:
 	const int MEMORY_SIZE = 1024;
