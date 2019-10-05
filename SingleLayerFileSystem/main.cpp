@@ -95,8 +95,8 @@ void write_in_file(vector<string> wordsVector) {
 		cin.get(info, MAX_FILE_SIZE);
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		//int data_size = string(info).length()+1;
-		int data_size = string(info).length();
+		int data_size = string(info).length()+1;
+		//int data_size = string(info).length();
 		fileSystem->write_in_file(wordsVector[1].c_str(),info,data_size);
 	}
 	else {

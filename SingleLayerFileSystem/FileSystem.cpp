@@ -39,7 +39,7 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 
 		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			//info[data_size-1] = '\0';
+			info[data_size-1] = '\n';
 			//files.find(filename)->second.set_data(info);
 			
 			for (int i = current_data_size; i < new_data_size; i++) {
@@ -174,7 +174,6 @@ int FileSystem::create_dump() {
 	return success();
 }
 
-// uses xmlout.h - not mine code
 int FileSystem::load_dump() {
 	TiXmlDocument doc("dump.xml");
 	doc.LoadFile();

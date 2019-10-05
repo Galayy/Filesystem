@@ -42,6 +42,9 @@
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="xmlout.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileSystem.h">
@@ -65,7 +68,7 @@
     <ClInclude Include="tinyxml.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="xml_out.h">
+    <ClInclude Include="xmlout.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
