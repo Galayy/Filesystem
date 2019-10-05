@@ -31,14 +31,14 @@ void UnitTests::runTests() {
 	moveFileWhenNotFound();
 	clear();
 
-	/*writeInFile_happyPath();
+	writeInFile_happyPath();
 	writeInFileWhenLackOfMemory();
 	writeInFileNotFound();
-	clear();*/
+	clear();
 
-	/*readFromFile_happyPath();
+	readFromFile_happyPath();
 	readFromFileNotFound();
-	clear();*/
+	clear();
 
 	performWithWrongCommand();
 	performWithWrongArguments();
@@ -159,6 +159,7 @@ void UnitTests::writeInFileWhenLackOfMemory() {
 //---------------------READ_BLOCK-------------------
 void UnitTests::readFromFile_happyPath() {
 	init(MEMORY_SIZE);
+	testFileSystem->createFile(FILE_NAME);
 	int firstOutput = testFileSystem->read_from_file(FILE_NAME);
 	int output = testFileSystem->read_from_file(FILE_NAME);
 	assert(output == Errors::SUCCESS);
