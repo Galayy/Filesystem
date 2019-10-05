@@ -5,7 +5,6 @@
 #include <string>
 #include "File.h"
 #include "Errors.h"
-#include "tinyxml.h"
 
 using namespace std;
 

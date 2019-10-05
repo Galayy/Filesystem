@@ -1,8 +1,10 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <map>
 #include <windows.h>
 #include "FileSystem.h"
-#include "xmlout.h"
+#include <fstream>
 
 using namespace std;
 
@@ -29,10 +31,10 @@ int FileSystem::createFile(string filename) {
 
 int FileSystem::write_in_file(string filename, char* info, int data_size) {
 	if (exists(filename)) {
-		int copacity = files.find(filename)->second.get_file_copacity();
+		int capacity = files.find(filename)->second.get_file_capacity();
 		int current_data_size = files.find(filename)->second.get_file_data_size();
 		int new_data_size = current_data_size + data_size;
-		if (data_size > copacity|| copacity < new_data_size) {
+		if (data_size > capacity|| capacity < new_data_size) { 
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
@@ -154,29 +156,26 @@ vector<string> FileSystem::getFileNames() {
 
 // creates dump file, rewrites if it already exists
 int FileSystem::create_dump() {
-	TiXmlDocument doc;
-	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	doc.LinkEndChild(decl);
-
-	TiXmlElement* root = new TiXmlElement("FileSystem");
-	doc.LinkEndChild(root);
-	TiXmlElement* file;
-	file = new TiXmlElement("file");
-
-	for (auto& elem:files) {
-		string str = string(elem.second.get_data()).substr(0,elem.second.get_file_data_size());
-		file->LinkEndChild(new TiXmlText(str.c_str()));
-		root->LinkEndChild(file);
-		file->SetAttribute("name", elem.first.c_str());
-		file->SetAttribute("address", elem.second.get_address());
+	FILE* dump;
+	ofstream ofs("test"); //создать
+	ofs.close();
+	/* открытие на запись */
+	if ((dump = fopen("dump.txt", "wb")) == NULL) {
+		printf("Cannot open file.");
+		return Errors::FILE_NOT_FOUND;
 	}
-	doc.SaveFile("dump.xml");
+	fwrite(&files, sizeof(files), 1, dump);
+	fclose(dump);
 	return success();
 }
 
 int FileSystem::load_dump() {
-	TiXmlDocument doc("dump.xml");
-	doc.LoadFile();
-	dump_to_stdout("dump.xml");
+	FILE* dump;
+	if ((dump = fopen("dump.txt", "rb")) == NULL) {
+		printf("Cannot open file.");
+		return Errors::FILE_NOT_FOUND;
+	}
+	fread(&files, sizeof(files), 1, dump);
+	fclose(dump);
 	return success();
 }
