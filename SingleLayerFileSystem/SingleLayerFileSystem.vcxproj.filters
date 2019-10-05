@@ -30,6 +30,21 @@
     <ClCompile Include="Command.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+<<<<<<< HEAD
+=======
+    <ClCompile Include="tinystr.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlerror.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlparser.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+>>>>>>> 7f4cc20830e4212cab4620bccf10d9aaf1475615
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileSystem.h">
@@ -47,5 +62,14 @@
     <ClInclude Include="Command.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="tinystr.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+>>>>>>> 7f4cc20830e4212cab4620bccf10d9aaf1475615
   </ItemGroup>
 </Project>

@@ -18,11 +18,13 @@ int FileSystem::createFile(string filename) {
 	if (emptyBlock == -1) {
 		cout << "Lack of memory" << endl;
 		return Errors::LACK_OF_MEMORY;
-	} else {
+	}
+	else {
 		if (!exists(filename)) {
 			setIntoMemory(emptyBlock, filename);
 			return success();
-		} else {
+		}
+		else {
 			cout << "File already exists" << endl;
 			return Errors::FILE_ALREADY_EXISTS;
 		}
@@ -34,16 +36,16 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 		int capacity = files.find(filename)->second.get_file_capacity();
 		int current_data_size = files.find(filename)->second.get_file_data_size();
 		int new_data_size = current_data_size + data_size;
-		if (data_size > capacity|| capacity < new_data_size) { 
+		if (data_size > capacity || capacity < new_data_size) {
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
 
 		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			info[data_size-1] = '\n';
+			info[data_size - 1] = '\n';
 			//files.find(filename)->second.set_data(info);
-			
+
 			for (int i = current_data_size; i < new_data_size; i++) {
 				files.find(filename)->second.get_data()[i] = info[i - current_data_size];
 			}
@@ -76,10 +78,11 @@ int FileSystem::deleteFile(string filename) {
 	if (exists(filename)) {
 		files.erase(filename);
 		return success();
-	} else {
+	}
+	else {
 		cout << EXISTANCE_MESSAGE << endl;
 		return Errors::FILE_NOT_FOUND;
-	} 
+	}
 }
 
 int FileSystem::copyFile(string fileFrom, string fileTo) {
@@ -87,7 +90,8 @@ int FileSystem::copyFile(string fileFrom, string fileTo) {
 		File file = files.find(fileFrom)->second;
 		files.insert(pair<string, File>(fileTo, file));
 		return success();
-	} else {
+	}
+	else {
 		cout << EXISTANCE_MESSAGE << endl;
 		return Errors::FILE_NOT_FOUND;
 	}
@@ -104,6 +108,15 @@ int FileSystem::moveFile(string fileFrom, string fileTo) {
 		return Errors::FILE_NOT_FOUND;
 	}
 
+}
+
+int FileSystem::dir() {
+	cout << "-----------------------------" << endl;
+	for (auto& filename : getFileNames()) {
+		cout << filename << endl;
+	}
+	cout << "-----------------------------" << endl;
+	return Errors::SUCCESS;
 }
 
 FileSystem::~FileSystem() {
@@ -150,7 +163,7 @@ vector<string> FileSystem::getFileNames() {
 	vector<string> filenames;
 	for (auto it = files.begin(); it != files.end(); ++it) {
 		filenames.push_back(it->first);
-    }
+	}
 	return filenames;
 }
 

@@ -5,7 +5,7 @@
 class File {
 private:
 	const int FILE_SIZE = 64;
-	char* data=new char[FILE_SIZE];
+	char* data = new char[FILE_SIZE];
 	int file_data_size = 0;
 public:
 	int* address = (int*)calloc(FILE_SIZE, sizeof(char));

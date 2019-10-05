@@ -16,10 +16,18 @@ vector<string> Command::getInputFromCommandLine() {
 }
 
 int Command::processInput(vector<string> wordsVector) {
-	commandNames = { "create", "del", "copy", "move", "cls", "close", "write", "read", "dump", "load"};
+	commandNames = { "create", "del", "copy", "move", "cls", "close", "write", "read", "dump", "load", "dir" };
 
 	if (validateInput(wordsVector[0], commandNames)) {
 		switch (resolveCommand(wordsVector[0])) {
+		case 9:
+			if (wordsVector.size() == 1) {
+				return 9;
+			}
+			else {
+				return Errors::WRONG_INPUT;
+			}
+			break;
 		case 8:
 			if (wordsVector.size() == 1) {
 				return 8;
@@ -55,42 +63,48 @@ int Command::processInput(vector<string> wordsVector) {
 		case 4:
 			if (wordsVector.size() == 3) {
 				return 4;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
 		case 3:
 			if (wordsVector.size() == 3) {
 				return 3;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
 		case 2:
 			if (wordsVector.size() == 2) {
 				return 2;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
 		case 1:
 			if (wordsVector.size() == 2) {
 				return 1;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
 		case 0:
 			if (wordsVector.size() == 1) {
 				return 0;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
 		case -1:
 			if (wordsVector.size() == 1) {
 				return -1;
-			} else {
+			}
+			else {
 				return Errors::WRONG_INPUT;
 			}
 			break;
@@ -124,5 +138,6 @@ int Command::resolveCommand(string command) {
 	if (command == "read") return 6;
 	if (command == "dump") return 7;
 	if (command == "load") return 8;
+	if (command == "dir") return 9;
 	else return 0;
 }
