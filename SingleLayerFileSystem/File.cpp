@@ -28,7 +28,7 @@ int File::get_file_data_size() {
 	return file_data_size;
 }
 
-int File::get_file_copacity() {
+int File::get_file_capacity() {
 	return FILE_SIZE;
 }
 

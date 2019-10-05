@@ -25,6 +25,7 @@ public:
 	int write_in_file(string filename, char*, int);
 	int create_dump();
 	int load_dump();
+	int dir();
 
 private:
 	const int MEMORY_SIZE = 1024;
