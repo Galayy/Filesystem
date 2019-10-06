@@ -31,26 +31,25 @@ int FileSystem::createFile(string filename) {
 	}
 }
 
-int FileSystem::write_in_file(string filename, char* info, int data_size) {
+int FileSystem::writeInFile(string filename, char* info, int dataSize) {
 	if (exists(filename)) {
-		int capacity = files.find(filename)->second.get_file_capacity();
-		int current_data_size = files.find(filename)->second.get_file_data_size();
-		int new_data_size = current_data_size + data_size;
-		if (data_size > capacity || capacity < new_data_size) {
+		int capacity = files.find(filename)->second.getFileCapacity();
+		int currentDataSize = files.find(filename)->second.getFileDataSize();
+		int newDataSize = currentDataSize + dataSize;
+		if (dataSize > capacity || capacity < newDataSize) {
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
 
 		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			info[data_size - 1] = '\0';
-			//files.find(filename)->second.set_data(info);
+			info[dataSize - 1] = '\0';
 
-			for (int i = current_data_size; i < new_data_size; i++) {
-				files.find(filename)->second.get_data()[i] = info[i - current_data_size];
+			for (int i = currentDataSize; i < newDataSize; i++) {
+				files.find(filename)->second.getData()[i] = info[i - currentDataSize];
 			}
-			files.find(filename)->second.set_file_data_size(new_data_size);
-			for (int i = 0; i < data_size; i++) {
+			files.find(filename)->second.setFileDataSize(newDataSize);
+			for (int i = 0; i < dataSize; i++) {
 				files.find(filename)->second.addToAddress(findEmptyBlock());
 			}
 			return success();
@@ -61,12 +60,11 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 	}
 }
 
-int FileSystem::read_from_file(string filename) {
+int FileSystem::readFromFile(string filename) {
 	if (exists(filename)) {
 		File file = files.find(filename)->second;
-		char* info = file.get_data();
-		cout.write(info, file.get_file_data_size());
-		//cout.write(info, 9);
+		char* info = file.getData();
+		cout.write(info, file.getFileDataSize());
 		cout << endl;
 		return success();
 	}
@@ -125,6 +123,56 @@ FileSystem::~FileSystem() {
 	delete memory;
 }
 
+// creates dump file, rewrites if it already exists
+int FileSystem::createDump() {
+	fstream  fbin("dump.dmp", ios::binary | ios::out);
+	if (fbin)
+	{
+		for (auto& file : files) {
+			int nameLength = file.first.length();
+			int dataSize = file.second.getFileDataSize();
+			fbin.write((char*)&nameLength, sizeof(int));
+			fbin.write((char*)file.first.c_str(), sizeof(char) * file.first.length());
+			fbin.write((char*)&dataSize, sizeof(int));
+			fbin.write((char*)file.second.getData(), sizeof(char) * file.second.getFileCapacity());
+			fbin.write((char*)file.second.address, sizeof(int) * file.second.getFileCapacity());
+		}
+		fbin.close();
+		return success();
+	}
+}
+
+int FileSystem::loadDump() {
+	fstream fbin;
+	fbin.open("dump.dmp", ios::in | ios::binary);
+	if (fbin)
+	{
+		while (!fbin.eof()) {
+			File file;
+			char* info = new char[file.getFileCapacity()];
+			int* address = new int[file.getFileCapacity()];
+
+			int nameLength;
+			fbin.read((char*)&nameLength, sizeof(int));
+			char* name = new char[nameLength];
+			fbin.read((char*)name, sizeof(char) * nameLength);
+
+			int dataSize;
+			fbin.read((char*)&dataSize, sizeof(int));
+			fbin.read((char*)info, sizeof(char) * file.getFileCapacity());
+			fbin.read((char*)address, sizeof(int) * file.getFileCapacity());
+
+			file.setFileDataSize(dataSize);
+			file.setData(info);
+			file.address = address;
+			files.insert(pair<string, File>(string(name).substr(0, nameLength), file));
+		}
+		files.erase(prev(files.end()));
+		fbin.close();
+	}
+	return success();
+}
+
 //PRIVATE
 bool FileSystem::exists(string filename) {
 	bool exists = false;
@@ -152,7 +200,6 @@ int FileSystem::findEmptyBlock() {
 
 void FileSystem::setIntoMemory(int emptyBlock, string filename) {
 	File file;
-	//file.addToAddress(emptyBlock);
 	files.insert(pair<string, File>(filename, file));
 }
 
@@ -169,53 +216,6 @@ vector<string> FileSystem::getFileNames() {
 	return filenames;
 }
 
-void FileSystem::occupy_the_block(int number) {
+void FileSystem::occupyTheBlock(int number) {
 	memory[number] = '1';
-}
-
-// creates dump file, rewrites if it already exists
-int FileSystem::create_dump() {
-	fstream  fbin("dump.dmp", ios::binary | ios::out);
-	if (fbin)
-	{
-		for(auto& file:files) {
-			int name_length = file.first.length();
-			int data_size = file.second.get_file_data_size();
-			fbin.write((char*)&name_length, sizeof(int));
-			fbin.write((char*)file.first.c_str(), sizeof(char) * file.first.length());
-			fbin.write((char*)&data_size, sizeof(int));
-			fbin.write((char*)file.second.get_data(), sizeof(char) * file.second.get_file_capacity());
-			fbin.write((char*)file.second.address, sizeof(int) * file.second.get_file_capacity());
-		}
-		fbin.close();
-		return success();
-	}
-}
-
-int FileSystem::load_dump() {
-	fstream fbin;
-	fbin.open("dump.dmp", ios::in | ios::binary);
-	if (fbin)
-	{
-		while (!fbin.eof()) {
-			File file;
-			char* info = new char[file.get_file_capacity()];
-			int* address = new int[file.get_file_capacity()];
-			int name_length;
-			fbin.read((char*)&name_length, sizeof(int));
-			char* name = new char[name_length];
-			fbin.read((char*)name, sizeof(char) * name_length);
-			int data_size;
-			fbin.read((char*)&data_size, sizeof(int));
-			fbin.read((char*)info, sizeof(char) * file.get_file_capacity());
-			fbin.read((char*)address, sizeof(int) * file.get_file_capacity());
-			file.set_file_data_size(data_size);
-			file.set_data(info);
-			file.address = address;
-			files.insert(pair<string, File>(string(name).substr(0, name_length), file));
-		}
-		files.erase(prev(files.end()));
-		fbin.close();
-	}
-	return success();
 }

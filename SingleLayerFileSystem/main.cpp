@@ -17,8 +17,8 @@ UnitTests* unitTests;
 bool shellState = true;
 
 const int MEMORY_SIZE = 1024;
-const int MAX_FILE_SIZE = 64; // ??????????
-const string CMD_ERROR_MESSAGE = "Wrong input. Try 'help' command for more information";
+const int MAX_FILE_SIZE = 64; 
+const string CMD_ERROR_MESSAGE = "Wrong input";
 
 void dir(vector<string>);
 void moveFile(vector<string>);
@@ -27,11 +27,11 @@ void deleteFile(vector<string>);
 void createFile(vector<string>);
 void clearScreen(vector<string>);
 void closeFileSystem(vector<string>);
-void write_in_file(vector<string>);
-void read_from_file(vector<string>);
+void writeInFile(vector<string>);
+void readFromFile(vector<string>);
 bool validateInput(string, vector<string>);
-void create_dump(vector<string>);
-void load_dump(vector<string>);
+void createDump(vector<string>);
+void loadDump(vector<string>);
 
 
 int main() {
@@ -51,16 +51,16 @@ int main() {
 			dir(wordsVector);
 			break;
 		case 8:
-			load_dump(wordsVector);
+			loadDump(wordsVector);
 			break;
 		case 7:
-			create_dump(wordsVector);
+			createDump(wordsVector);
 			break;
 		case 6:
-			read_from_file(wordsVector);
+			readFromFile(wordsVector);
 			break;
 		case 5:
-			write_in_file(wordsVector);
+			writeInFile(wordsVector);
 			break;
 		case 4:
 			moveFile(wordsVector);
@@ -94,14 +94,14 @@ void createFile(vector<string> wordsVector) {
 	}
 }
 
-void write_in_file(vector<string> wordsVector) {
+void writeInFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
 		char* info = new char[MAX_FILE_SIZE];
 		cin.get(info, MAX_FILE_SIZE);
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		int data_size = string(info).length() + 1;
-		fileSystem->write_in_file(wordsVector[1].c_str(), info, data_size);
+		fileSystem->writeInFile(wordsVector[1].c_str(), info, data_size);
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
@@ -118,9 +118,9 @@ void copyFile(vector<string> wordsVector) {
 }
 
 
-void read_from_file(vector<string> wordsVector) {
+void readFromFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		fileSystem->read_from_file(wordsVector[1]);
+		fileSystem->readFromFile(wordsVector[1]);
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
@@ -163,18 +163,18 @@ void closeFileSystem(vector<string> wordsVector) {
 	}
 }
 
-void create_dump(vector<string> wordsVector) {
+void createDump(vector<string> wordsVector) {
 	if (wordsVector.size() == 1) {
-		fileSystem->create_dump();
+		fileSystem->createDump();
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
 	}
 }
 
-void load_dump(vector<string> wordsVector) {
+void loadDump(vector<string> wordsVector) {
 	if (wordsVector.size() == 1) {
-		fileSystem->load_dump();
+		fileSystem->loadDump();
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
