@@ -140,12 +140,11 @@ void UnitTests::writeInFile_happyPath() {
 
 void UnitTests::writeInFileNotFound() {
 	init(MEMORY_SIZE);
-	//testFileSystem->write_in_file(FILE_NAME);
 	char RIGHT_DATA[25] = "this is the wright data";
 	int output = testFileSystem->writeInFile(FILE_NAME, &RIGHT_DATA[0], 25);
 	assert(output == Errors::FILE_NOT_FOUND);
 }
-// I have some doubts about Memory_size because it's different lack of memory
+
 void UnitTests::writeInFileWhenLackOfMemory() {
 	init(MEMORY_SIZE);
 	testFileSystem->createFile(FILE_NAME);

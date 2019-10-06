@@ -69,7 +69,7 @@ int FileSystem::readFromFile(string filename) {
 		return success();
 	}
 	else {
-		cout << EXISTANCE_MESSAGE;
+		cout << EXISTANCE_MESSAGE << endl;
 		return Errors::FILE_NOT_FOUND;
 	}
 }

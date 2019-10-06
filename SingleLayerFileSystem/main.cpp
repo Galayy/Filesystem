@@ -1,3 +1,8 @@
+ //Operation systems course. 4th laboratory work, 4th variant 
+ //Single-layer filesystem with block physical file organization 
+ //Created by Galay A.D., Salimova Y.S., 721702
+ //October 2019
+
 #include <iostream>
 #include <sstream>
 #include <vector>
