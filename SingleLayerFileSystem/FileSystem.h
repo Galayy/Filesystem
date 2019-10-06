@@ -35,6 +35,7 @@ private:
 
 	int success();
 	int findEmptyBlock();
+	void occupy_the_block(int);
 
 	vector<string> getFileNames();
 

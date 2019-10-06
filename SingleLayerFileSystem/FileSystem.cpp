@@ -43,7 +43,7 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 
 		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			info[data_size - 1] = '\n';
+			info[data_size - 1] = '\0';
 			//files.find(filename)->second.set_data(info);
 
 			for (int i = current_data_size; i < new_data_size; i++) {
@@ -64,7 +64,9 @@ int FileSystem::write_in_file(string filename, char* info, int data_size) {
 int FileSystem::read_from_file(string filename) {
 	if (exists(filename)) {
 		File file = files.find(filename)->second;
-		cout.write(file.get_data(), file.get_file_data_size());
+		char* info = file.get_data();
+		cout.write(info, file.get_file_data_size());
+		//cout.write(info, 9);
 		cout << endl;
 		return success();
 	}
@@ -167,28 +169,53 @@ vector<string> FileSystem::getFileNames() {
 	return filenames;
 }
 
+void FileSystem::occupy_the_block(int number) {
+	memory[number] = '1';
+}
+
 // creates dump file, rewrites if it already exists
 int FileSystem::create_dump() {
-	FILE* dump;
-	ofstream ofs("test"); //создать
-	ofs.close();
-	/* открытие на запись */
-	if ((dump = fopen("dump.txt", "wb")) == NULL) {
-		printf("Cannot open file.");
-		return Errors::FILE_NOT_FOUND;
+	fstream  fbin("dump.dmp", ios::binary | ios::out);
+	if (fbin)
+	{
+		for(auto& file:files) {
+			int name_length = file.first.length();
+			int data_size = file.second.get_file_data_size();
+			fbin.write((char*)&name_length, sizeof(int));
+			fbin.write((char*)file.first.c_str(), sizeof(char) * file.first.length());
+			fbin.write((char*)&data_size, sizeof(int));
+			fbin.write((char*)file.second.get_data(), sizeof(char) * file.second.get_file_capacity());
+			fbin.write((char*)file.second.address, sizeof(int) * file.second.get_file_capacity());
+		}
+		fbin.close();
+		return success();
 	}
-	fwrite(&files, sizeof(files), 1, dump);
-	fclose(dump);
-	return success();
 }
 
 int FileSystem::load_dump() {
-	FILE* dump;
-	if ((dump = fopen("dump.txt", "rb")) == NULL) {
-		printf("Cannot open file.");
-		return Errors::FILE_NOT_FOUND;
+	fstream fbin;
+	fbin.open("dump.dmp", ios::in | ios::binary);
+	if (fbin)
+	{
+		while (!fbin.eof()) {
+			File file;
+			char* info = new char[file.get_file_capacity()];
+			int* address = new int[file.get_file_capacity()];
+			int name_length;
+			fbin.read((char*)&name_length, sizeof(int));
+			char* name = new char[name_length];
+			fbin.read((char*)name, sizeof(char) * name_length);
+			int data_size;
+			fbin.read((char*)&data_size, sizeof(int));
+			fbin.read((char*)info, sizeof(char) * file.get_file_capacity());
+			fbin.read((char*)address, sizeof(int) * file.get_file_capacity());
+			file.set_file_data_size(data_size);
+			file.set_data(info);
+			file.address = address;
+			files.insert(pair<string, File>(string(name).substr(0, name_length), file));
+		}
+		files.erase(prev(files.end()));
+		fbin.close();
 	}
-	fread(&files, sizeof(files), 1, dump);
-	fclose(dump);
 	return success();
 }

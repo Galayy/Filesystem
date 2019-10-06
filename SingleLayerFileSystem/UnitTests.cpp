@@ -36,9 +36,9 @@ void UnitTests::runTests() {
 	writeInFileNotFound();
 	clear();
 
-	readFromFile_happyPath();
+	/*readFromFile_happyPath();
 	readFromFileNotFound();
-	clear();
+	clear();*/
 
 	performWithWrongCommand();
 	performWithWrongArguments();
