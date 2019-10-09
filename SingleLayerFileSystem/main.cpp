@@ -4,7 +4,6 @@
  //October 2019
 
 #include <iostream>
-#include <sstream>
 #include <vector>
 #include <map>
 #include <functional>
@@ -105,8 +104,8 @@ void writeInFile(vector<string> wordsVector) {
 		cin.get(info, MAX_FILE_SIZE);
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		int data_size = string(info).length() + 1;
-		fileSystem->writeInFile(wordsVector[1].c_str(), info, data_size);
+		int dataSize = string(info).length() + 1;
+		fileSystem->writeInFile(wordsVector[1].c_str(), info, dataSize);
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;

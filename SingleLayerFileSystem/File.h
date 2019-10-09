@@ -5,10 +5,11 @@
 class File {
 private:
 	const int FILE_SIZE = 64;
-	char* data = new char[FILE_SIZE];
-	int fileDataSize = 0;
+	char* data;
+	int fileDataSize;
 public:
-	int* address = (int*)calloc(FILE_SIZE, sizeof(char));
+	File();
+	int* address;
 
 	void addToAddress(int blockIndex);
 	void setFileDataSize(int);
@@ -18,4 +19,5 @@ public:
 
 	int getFileDataSize();
 	int getFileCapacity();
+	~File();
 };

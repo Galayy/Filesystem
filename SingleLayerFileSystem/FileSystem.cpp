@@ -31,28 +31,54 @@ int FileSystem::createFile(string filename) {
 	}
 }
 
+int FileSystem::moveFile(string fileFrom, string fileTo) {
+	if (exists(fileFrom)) {
+		File* file = files.at(fileFrom);
+		if (fileNotNull(file)) {
+			files.insert(pair<string, File*>(fileTo, file));
+			return deleteFile(fileFrom);
+		}
+		else {
+			return fileError(FILE_ERROR_MESSAGE);
+		}
+	}
+	else {
+		cout << EXISTANCE_MESSAGE << endl;
+		return Errors::FILE_NOT_FOUND;
+	}
+
+}
+
 int FileSystem::writeInFile(string filename, char* info, int dataSize) {
 	if (exists(filename)) {
-		int capacity = files.find(filename)->second.getFileCapacity();
-		int currentDataSize = files.find(filename)->second.getFileDataSize();
+		int capacity = files.at(filename)->getFileCapacity();
+		int currentDataSize = files.at(filename)->getFileDataSize();
 		int newDataSize = currentDataSize + dataSize;
+
 		if (dataSize > capacity || capacity < newDataSize) {
 			cout << "Lack of memory" << endl;
 			return Errors::LACK_OF_MEMORY;
 		}
-
-		// this block has been changed to have the oppotunity to write data in file if it has free memory blocks
 		else {
-			info[dataSize - 1] = '\0';
+			info[dataSize - 1] = '\n';
 
 			for (int i = currentDataSize; i < newDataSize; i++) {
-				files.find(filename)->second.getData()[i] = info[i - currentDataSize];
+				files.at(filename)->getData()[i] = info[i - currentDataSize];
 			}
-			files.find(filename)->second.setFileDataSize(newDataSize);
-			for (int i = 0; i < dataSize; i++) {
-				files.find(filename)->second.addToAddress(findEmptyBlock());
+			
+			File* file = files.at(filename);
+
+			if (fileNotNull(file)) {
+				file->setFileDataSize(newDataSize);
+
+				for (int i = 0; i < dataSize; i++) {
+					files.at(filename)->addToAddress(findEmptyBlock());
+				}
+				return success();
 			}
-			return success();
+			else {
+				return fileError(FILE_ERROR_MESSAGE);
+			}
 		}
 	}
 	else {
@@ -62,10 +88,11 @@ int FileSystem::writeInFile(string filename, char* info, int dataSize) {
 
 int FileSystem::readFromFile(string filename) {
 	if (exists(filename)) {
-		File file = files.find(filename)->second;
-		char* info = file.getData();
-		cout.write(info, file.getFileDataSize());
-		cout << endl;
+		File* file = files.at(filename);
+		char* info = file->getData();
+		cout << "--------------" << endl;
+		cout.write(info, file->getFileDataSize());
+		cout << "--------------" << endl;
 		return success();
 	}
 	else {
@@ -76,7 +103,7 @@ int FileSystem::readFromFile(string filename) {
 
 int FileSystem::deleteFile(string filename) {
 	if (exists(filename)) {
-		files.erase(filename);
+		removeFile(filename);
 		return success();
 	}
 	else {
@@ -87,70 +114,68 @@ int FileSystem::deleteFile(string filename) {
 
 int FileSystem::copyFile(string fileFrom, string fileTo) {
 	if (exists(fileFrom)) {
-		File file = files.find(fileFrom)->second;
-		files.insert(pair<string, File>(fileTo, file));
-		return success();
+		File* file = files.at(fileFrom);
+		if (fileNotNull(file)) {
+			files.insert(pair<string, File*>(fileTo, file));
+			return success();
+		}
+		else {
+			return fileError(FILE_ERROR_MESSAGE);
+		}
+		
 	}
 	else {
 		cout << EXISTANCE_MESSAGE << endl;
 		return Errors::FILE_NOT_FOUND;
 	}
-}
-
-int FileSystem::moveFile(string fileFrom, string fileTo) {
-	if (exists(fileFrom)) {
-		File file = files.find(fileFrom)->second;
-		files.insert(pair<string, File>(fileTo, file));
-		return deleteFile(fileFrom);
-	}
-	else {
-		cout << EXISTANCE_MESSAGE << endl;
-		return Errors::FILE_NOT_FOUND;
-	}
-
 }
 
 int FileSystem::dir() {
 	cout << "-----------------------------" << endl;
-	for (auto& filename : getFileNames()) {
-		cout << filename << endl;
+	for (pair<string, File*> pairFile : files) {
+		cout << pairFile.first << endl;
 	}
 	cout << "-----------------------------" << endl;
 	return Errors::SUCCESS;
 }
 
 FileSystem::~FileSystem() {
+	for (pair<string, File*> pairFile : files) {
+		removeFile(pairFile.first);
+	}
 	delete memory;
 }
 
-// creates dump file, rewrites if it already exists
 int FileSystem::createDump() {
 	fstream  fbin("dump.dmp", ios::binary | ios::out);
-	if (fbin)
-	{
-		for (auto& file : files) {
-			int nameLength = file.first.length();
-			int dataSize = file.second.getFileDataSize();
+	if (fbin) {
+		for (pair<string, File*> pairFile : files) {
+			int nameLength = pairFile.first.length();
+			int dataSize = pairFile.second->getFileDataSize();
 			fbin.write((char*)&nameLength, sizeof(int));
-			fbin.write((char*)file.first.c_str(), sizeof(char) * file.first.length());
+			fbin.write((char*)pairFile.first.c_str(), sizeof(char) * pairFile.first.length());
 			fbin.write((char*)&dataSize, sizeof(int));
-			fbin.write((char*)file.second.getData(), sizeof(char) * file.second.getFileCapacity());
-			fbin.write((char*)file.second.address, sizeof(int) * file.second.getFileCapacity());
+			fbin.write((char*)pairFile.second->getData(), sizeof(char) * pairFile.second->getFileCapacity());
+			fbin.write((char*)pairFile.second->address, sizeof(int) * pairFile.second->getFileCapacity());
 		}
 		fbin.close();
 		return success();
+	}
+	else {
+		return fileError("Error while creating dump");
 	}
 }
 
 int FileSystem::loadDump() {
 	fstream fbin;
+	string filename;
 	fbin.open("dump.dmp", ios::in | ios::binary);
-	if (fbin)
-	{
+
+	if (fbin) {
 		while (!fbin.eof()) {
-			File file;
-			char* info = new char[file.getFileCapacity()];
-			int* address = new int[file.getFileCapacity()];
+			File* file = new File();
+			char* info = new char[file->getFileCapacity()];
+			int* address = new int[file->getFileCapacity()];
 
 			int nameLength;
 			fbin.read((char*)&nameLength, sizeof(int));
@@ -159,31 +184,42 @@ int FileSystem::loadDump() {
 
 			int dataSize;
 			fbin.read((char*)&dataSize, sizeof(int));
-			fbin.read((char*)info, sizeof(char) * file.getFileCapacity());
-			fbin.read((char*)address, sizeof(int) * file.getFileCapacity());
+			fbin.read((char*)info, sizeof(char) * file->getFileCapacity());
+			fbin.read((char*)address, sizeof(int) * file->getFileCapacity());
 
-			file.setFileDataSize(dataSize);
-			file.setData(info);
-			file.address = address;
-			files.insert(pair<string, File>(string(name).substr(0, nameLength), file));
+			file->setFileDataSize(dataSize);
+			file->setData(info);
+			file->address = address;
+			filename = string(name).substr(0, nameLength);
+
+			if (fileNotNull(file)) {
+				files.insert(pair<string, File*>(string(name).substr(0, nameLength), file));
+			}
 		}
-		files.erase(prev(files.end()));
+		removeFile(filename);
 		fbin.close();
+		return success();
 	}
-	return success();
+	else {
+		return fileError("Error while loading dump");
+	}
+	
 }
 
 //PRIVATE
 bool FileSystem::exists(string filename) {
 	bool exists = false;
-	vector<string> filenames = getFileNames();
-	for (int i = 0; i < filenames.size(); i++) {
-		if (filename == filenames[i]) {
+	for (pair<string, File*> pairFile : files) {
+		if (filename == pairFile.first) {
 			exists = true;
 			break;
 		}
 	}
 	return exists;
+}
+
+bool FileSystem::fileNotNull(File* file) {
+	return file != NULL;
 }
 
 int FileSystem::findEmptyBlock() {
@@ -199,8 +235,15 @@ int FileSystem::findEmptyBlock() {
 }
 
 void FileSystem::setIntoMemory(int emptyBlock, string filename) {
-	File file;
-	files.insert(pair<string, File>(filename, file));
+	File* file = new File();
+	if (fileNotNull(file)) {
+		files.insert(pair<string, File*>(filename, file));
+	}
+}
+
+int FileSystem::fileError(string errorMessage) {
+	cout << errorMessage << endl;
+	return Errors::FILE_ERROR;
 }
 
 int FileSystem::success() {
@@ -208,14 +251,14 @@ int FileSystem::success() {
 	return Errors::SUCCESS;
 }
 
-vector<string> FileSystem::getFileNames() {
-	vector<string> filenames;
-	for (auto it = files.begin(); it != files.end(); ++it) {
-		filenames.push_back(it->first);
-	}
-	return filenames;
-}
-
 void FileSystem::occupyTheBlock(int number) {
 	memory[number] = '1';
+}
+
+void FileSystem::removeFile(string filename) {
+	File* file = files.at(filename);
+	if (fileNotNull(file)) {
+		delete file;
+	}
+	files.erase(filename);
 }
