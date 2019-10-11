@@ -100,12 +100,20 @@ void createFile(vector<string> wordsVector) {
 
 void writeInFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		char* info = new char[MAX_FILE_SIZE];
-		cin.get(info, MAX_FILE_SIZE);
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		int dataSize = string(info).length() + 1;
-		fileSystem->writeInFile(wordsVector[1].c_str(), info, dataSize);
+		char* data = (char*)calloc(1, sizeof(char));
+		int pointer = 0;
+		char ch = '\0';
+		while (cin.get(ch)) {
+			if (ch == '#') {
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				break;
+			}
+			data = (char*)realloc(data, ++pointer);
+			data[pointer - 1] = ch;
+		}
+		//data = (char*)realloc(data, --pointer);
+		fileSystem->writeInFile(wordsVector[1].c_str(), data, pointer);
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;

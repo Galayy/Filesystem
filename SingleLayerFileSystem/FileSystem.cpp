@@ -90,7 +90,7 @@ int FileSystem::readFromFile(string filename) {
 		char* info = file->getData();
 		cout << "--------------" << endl;
 		cout.write(info, file->getFileDataSize());
-		cout << "--------------" << endl;
+		cout << "\n--------------" << endl;
 		return success();
 	}
 	else {

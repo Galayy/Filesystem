@@ -3,7 +3,7 @@
 #include "UnitTests.h"
 
 void UnitTests::init(int memorySize) {
-	commandNames = { "create", "del", "copy", "move", "cls", "close" };
+	commandNames = { "create", "del", "copy", "move", "cls", "close", "read", "write" };
 	command = new Command();
 	testFileSystem = new FileSystem(memorySize);
 }
@@ -131,22 +131,25 @@ void UnitTests::moveFileWhenNotFound() {
 //---------------------WRITE_BLOCK-------------------
 void UnitTests::writeInFile_happyPath() {
 	init(MEMORY_SIZE);
-	testFileSystem->write_in_file(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	testFileSystem->createFile(FILE_NAME);
+	char RIGHT_DATA[25] = "this is the wright data";
+	int output = testFileSystem->writeInFile(FILE_NAME, &RIGHT_DATA[0], 25);
 	assert(output == Errors::SUCCESS);
 }
 
 void UnitTests::writeInFileNotFound() {
 	init(MEMORY_SIZE);
-	testFileSystem->write_in_file(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	//testFileSystem->writeInFile(FILE_NAME);
+	char RIGHT_DATA[25] = "this is the wright data";
+	int output = testFileSystem->writeInFile(FILE_NAME, &RIGHT_DATA[0], 25);
 	assert(output == Errors::FILE_NOT_FOUND);
 }
 // I have some doubts about Memory_size because it's different lack of memory
 void UnitTests::writeInFileWhenLackOfMemory() {
 	init(MEMORY_SIZE);//???
 	testFileSystem->createFile(FILE_NAME);
-	int output = testFileSystem->write_in_file(FILE_NAME);
+	char WRONG_DATA[75] = "hhssfjshfjshf skhfkjdhfsjhfk sdjfhsjhfshfdks skfhdjfhdsfh sdjjfhsdjkfhskfh";
+	int output = testFileSystem->writeInFile(FILE_NAME, &WRONG_DATA[0], 75);
 	assert(output == Errors::LACK_OF_MEMORY);
 }
 //---------------------WRITE_BLOCK-------------------
@@ -155,15 +158,15 @@ void UnitTests::writeInFileWhenLackOfMemory() {
 //---------------------READ_BLOCK-------------------
 void UnitTests::readFromFile_happyPath() {
 	init(MEMORY_SIZE);
-	int firstOutput = testFileSystem->read_from_file(FILE_NAME);
-	int output = testFileSystem->read_from_file(FILE_NAME);
+	int firstOutput = testFileSystem->readFromFile(FILE_NAME);
+	int output = testFileSystem->readFromFile(FILE_NAME);
 	assert(output == Errors::SUCCESS);
 }
 
 void UnitTests::readFromFileNotFound() {
 	init(MEMORY_SIZE);
-	int firstOutput = testFileSystem->read_from_file(FILE_NAME);
-	int output = testFileSystem->read_from_file(FILE_NAME);
+	int firstOutput = testFileSystem->readFromFile(FILE_NAME);
+	int output = testFileSystem->readFromFile(FILE_NAME);
 	assert(output == Errors::FILE_NOT_FOUND);
 }
 //---------------------READ_BLOCK-------------------
