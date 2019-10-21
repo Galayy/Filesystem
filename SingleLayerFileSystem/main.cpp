@@ -105,12 +105,19 @@ void writeInFile(vector<string> wordsVector) {
 		char ch = '\0';
 		while (cin.get(ch)) {
 			if (ch == '#') {
-				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				break;
+				if (data[pointer - 1] != '\\') {
+					cin.clear();
+					cin.ignore(numeric_limits<streamsize>::max(), '\n');
+					break;
+				}
+				else {
+					data[pointer - 1] = ch;
+				}
 			}
-			data = (char*)realloc(data, ++pointer);
-			data[pointer - 1] = ch;
+			else {
+				data = (char*)realloc(data, ++pointer);
+				data[pointer - 1] = ch;
+			}
 		}
 		//data = (char*)realloc(data, --pointer);
 		fileSystem->writeInFile(wordsVector[1].c_str(), data, pointer);

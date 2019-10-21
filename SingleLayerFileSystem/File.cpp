@@ -4,7 +4,7 @@
 using namespace std;
 
 File::File() {
-	address = (int*)calloc(FILE_SIZE, sizeof(char));
+	address = (char*)calloc(FILE_SIZE, sizeof(char));
 	data = new char[FILE_SIZE];
 	fileDataSize = 0;
 }

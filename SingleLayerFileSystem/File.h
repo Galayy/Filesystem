@@ -9,7 +9,7 @@ private:
 	int fileDataSize;
 public:
 	File();
-	int* address;
+	char* address;
 
 	void addToAddress(int blockIndex);
 	void setFileDataSize(int);

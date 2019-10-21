@@ -154,7 +154,7 @@ int FileSystem::createDump() {
 			fbin.write((char*)pairFile.first.c_str(), sizeof(char) * pairFile.first.length());
 			fbin.write((char*)& dataSize, sizeof(int));
 			fbin.write((char*)pairFile.second->getData(), sizeof(char) * pairFile.second->getFileCapacity());
-			fbin.write((char*)pairFile.second->address, sizeof(int) * pairFile.second->getFileCapacity());
+			fbin.write((char*)pairFile.second->address, sizeof(char) * pairFile.second->getFileCapacity());
 		}
 		fbin.close();
 		return success();
@@ -173,7 +173,7 @@ int FileSystem::loadDump() {
 		while (!fbin.eof()) {
 			File* file = new File();
 			char* info = new char[file->getFileCapacity()];
-			int* address = new int[file->getFileCapacity()];
+			char* address = new char[file->getFileCapacity()];
 
 			int nameLength;
 			fbin.read((char*)& nameLength, sizeof(int));
@@ -183,7 +183,7 @@ int FileSystem::loadDump() {
 			int dataSize;
 			fbin.read((char*)& dataSize, sizeof(int));
 			fbin.read((char*)info, sizeof(char) * file->getFileCapacity());
-			fbin.read((char*)address, sizeof(int) * file->getFileCapacity());
+			fbin.read((char*)address, sizeof(char) * file->getFileCapacity());
 
 			file->setFileDataSize(dataSize);
 			file->setData(info);
