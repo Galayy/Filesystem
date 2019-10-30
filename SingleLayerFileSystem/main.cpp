@@ -43,7 +43,7 @@ int main() {
 	command = new Command();
 	fileSystem = new FileSystem(MEMORY_SIZE);
 
-	unitTests->runTests();
+	//unitTests->runTests();
 
 	while (shellState) {
 		cout << "> ";

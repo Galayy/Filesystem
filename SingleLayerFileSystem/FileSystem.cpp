@@ -46,7 +46,6 @@ int FileSystem::moveFile(string fileFrom, string fileTo) {
 		cout << EXISTANCE_MESSAGE << endl;
 		return Errors::FILE_NOT_FOUND;
 	}
-
 }
 
 int FileSystem::writeInFile(string filename, char* info, int dataSize) {
