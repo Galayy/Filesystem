@@ -14,7 +14,7 @@ public:
 	char* memory;
 	map<string, File*> files;
 
-	int writeInFile(string filename, char*, int);
+	int writeInFile(string filename, vector<char>);
 	int moveFile(string fileFrom, string fileTo);
 	int copyFile(string fileFrom, string fileTo);
 	int createFile(string filename);
@@ -27,6 +27,7 @@ public:
 	~FileSystem();
 private:
 	const int MEMORY_SIZE = 1024;
+	int occupiedMemory = 0;
 
 	const string FILE_ERROR_MESSAGE = "Error while processing file";
 	const string SUCCESS_MESSAGE = "Success";
@@ -40,6 +41,6 @@ private:
 	int fileError(string errorMessage);
 
 	void removeFile(string filename);
-	void occupyTheBlock(int block);
-	void setIntoMemory(int emptyBlock, string filename);
+	void setIntoMemory(string filename);
+	int getFreeMemoryCapacity();
 };

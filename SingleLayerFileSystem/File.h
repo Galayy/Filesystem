@@ -1,23 +1,24 @@
 #pragma once
 
 #include <stdlib.h>
+#include <vector>
+
+using namespace std;
 
 class File {
 private:
-	const int FILE_SIZE = 64;
-	char* data;
+	vector<char> data;
 	int fileDataSize;
 public:
 	File();
-	char* address;
+	vector<int> address;
 
-	void addToAddress(int blockIndex);
+	void addToAddress(int);
 	void setFileDataSize(int);
-	void setData(char*);
+	void setData(vector<char> info);
 
-	char* getData();
+	vector<char> getData();
 
 	int getFileDataSize();
-	int getFileCapacity();
 	~File();
 };
