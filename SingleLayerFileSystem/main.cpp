@@ -10,18 +10,15 @@
 #include <algorithm>
 #include "Command.h"
 #include "FileSystem.h"
-#include "UnitTests.h"
 #include <stdlib.h>
 
 using namespace std;
 
 Command* command;
 FileSystem* fileSystem;
-UnitTests* unitTests;
 bool shellState = true;
 
 const int MEMORY_SIZE = 1024;
-const int MAX_FILE_SIZE = 64;
 const string CMD_ERROR_MESSAGE = "Wrong input";
 
 void dir(vector<string>);
@@ -39,7 +36,7 @@ void loadDump(vector<string>);
 
 
 int main() {
-	unitTests = new UnitTests();
+	//unitTests = new UnitTests();
 	command = new Command();
 	fileSystem = new FileSystem(MEMORY_SIZE);
 
@@ -100,27 +97,27 @@ void createFile(vector<string> wordsVector) {
 
 void writeInFile(vector<string> wordsVector) {
 	if (wordsVector.size() == 2) {
-		char* data = (char*)calloc(1, sizeof(char));
+		vector<char> str;
 		int pointer = 0;
 		char ch = '\0';
 		while (cin.get(ch)) {
 			if (ch == '#') {
-				if (data[pointer - 1] != '\\') {
+				if (str[pointer - 1] != '\\') {
 					cin.clear();
 					cin.ignore(numeric_limits<streamsize>::max(), '\n');
 					break;
 				}
 				else {
-					data[pointer - 1] = ch;
+					str[pointer - 1] = ch;
 				}
 			}
 			else {
-				data = (char*)realloc(data, ++pointer);
-				data[pointer - 1] = ch;
+				str.push_back(ch);
+				pointer++;
 			}
 		}
-		//data = (char*)realloc(data, --pointer);
-		fileSystem->writeInFile(wordsVector[1].c_str(), data, pointer);
+		//vector<char>* ptr = &str;
+		fileSystem->writeInFile(wordsVector[1].c_str(), str);
 	}
 	else {
 		cout << CMD_ERROR_MESSAGE << endl;
